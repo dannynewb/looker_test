@@ -21,16 +21,30 @@ looker.plugins.visualizations.add({
 
     // Insert a <style> tag with some styles we'll use later.
     element.innerHTML = `
-    <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" width="80" height="50" rx="5" stroke="white" style="fill:#E23A96" />
-    <rect x="80" width="80" height="50" rx="5" stroke="white" style="fill:#5FC2C3" />
+      <style>
+        .hello-world-vis {
+          /* Vertical centering */
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          text-align: center;
+        }
+        .hello-world-text-large {
+          font-size: 72px;
+        }
+        .hello-world-text-small {
+          font-size: 18px;
+        }
+      </style>
+    `;
 
-    <rect x="40" width="80" height="50" stroke="white" style="fill:#bd4e96" />
-    <rect x="80" width="40" height="50" stroke="white" style="fill:#9287B2" />
+    // Create a container element to let us center the text.
+    var container = element.appendChild(document.createElement("div"));
+    container.className = "hello-world-vis";
 
-    <circle cx="40" cy="25" r="15" style="fill:rgba(50,50,50,0.5)" />
-    <circle cx="100" cy="25" r="7" style="fill:rgba(50,50,50,0.5)" />
-  </svg>`;
+    // Create an element to contain the text.
+    this._textElement = container.appendChild(document.createElement("div"));
 
   },
   // Render in response to the data or settings changing
@@ -38,6 +52,26 @@ looker.plugins.visualizations.add({
 
     // Clear any errors from previous updates
     this.clearErrors();
+
+    // Throw some errors and exit if the shape of the data isn't what this chart needs
+    if (queryResponse.fields.dimensions.length == 0) {
+      this.addError({title: "No Dimensions", message: "This chart requires dimensions."});
+      return;
+    }
+
+    // Grab the first cell of the data
+    var firstRow = data[0];
+    var firstCell = firstRow[queryResponse.fields.dimensions[0].name];
+
+    // Insert the data into the page
+    this._textElement.innerHTML = LookerCharts.Utils.htmlForCell(firstCell);
+
+    // Set the size to the user-selected size
+    if (config.font_size == "small") {
+      this._textElement.className = "hello-world-text-small";
+    } else {
+      this._textElement.className = "hello-world-text-large";
+    }
 
     // We are done rendering! Let Looker know.
     done()
