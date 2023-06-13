@@ -21,11 +21,7 @@ looker.plugins.visualizations.add({
   
       // Insert a <style> tag with some styles we'll use later.
       element.innerHTML = `
-      <ct-button
-      primary
-      class="save-btn"
-        Save
-    </ct-button>`;
+      <ct-button primary class="save-btn">Save</ct-button>`;
   
     },
     // Render in response to the data or settings changing
